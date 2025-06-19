@@ -15,6 +15,7 @@ const core = new midtransClient.CoreApi({
 
 exports.createTransaction = async (req, res) => {
   try {
+     console.log("POST /create-transaction diterima"); // ✅ Tambahkan di sini
     const { name, email, whatsapp } = req.body;
     const orderId = 'ORDER-' + Date.now();
     const startTime = new Date();

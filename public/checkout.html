@@ -148,61 +148,60 @@
         return;
       }
 
-      try {
-        console.log("Mengirim data ke backend...");
+     try {
+  console.log("Mengirim data ke backend...");
 
-        const response = await fetch("https://affiliatetanparibet.com/create-transaction", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: nama,
-            email: email,
-            whatsapp: whatsapp
-          })
-        });
+  const response = await fetch("https://affiliatetanparibet.com/create-transaction", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: nama, email: email, whatsapp: whatsapp })
+  });
 
-        console.log("Status response:", response.status);
+  if (!response.ok) {
+    console.error("Status response:", response.status);
+    throw new Error("Server error, status " + response.status);
+  }
 
-        const data = await response.json();
-        console.log("Response dari backend:", data);
+  const data = await response.json();
 
-        const token = data.token;
-        console.log("Token Midtrans Snap:", token);
+  const token = data.token;
+  console.log("Token Midtrans Snap:", token);
 
-        if (!token) {
-          console.error("❌ Gagal mendapatkan token transaksi dari backend.");
-          alert("❌ Gagal mendapatkan token transaksi.");
-          return;
-        }
+  if (!token) {
+    console.error("❌ Gagal mendapatkan token transaksi dari backend.");
+    alert("❌ Gagal mendapatkan token transaksi.");
+    return;
+  }
 
-        console.log("Memanggil snap.pay dengan token:", token);
-        snap.pay(token, {
-          onSuccess: function (result) {
-            console.log("✅ Pembayaran sukses:", result);
-            alert("✅ Pembayaran berhasil!");
-            window.location.href = "thanks.html";
-          },
-          onPending: function (result) {
-            console.log("⏳ Pembayaran pending:", result);
-            result.customer_name = nama;
-            localStorage.setItem('pending_data', JSON.stringify(result));
-            window.location.href = "pending.html";
-          },
-          onError: function (error) {
-            console.error("❌ Terjadi error saat pembayaran:", error);
-            alert("❌ Terjadi kesalahan saat proses pembayaran.");
-            window.location.href = "error.html";
-          },
-          onClose: function () {
-            console.warn("⚠️ Pengguna menutup popup pembayaran.");
-            alert("⚠️ Pembayaran dibatalkan.");
-          }
-        });
+  console.log("Memanggil snap.pay dengan token:", token);
+  snap.pay(token, {
+    onSuccess: function (result) {
+      console.log("✅ Pembayaran sukses:", result);
+      alert("✅ Pembayaran berhasil!");
+      window.location.href = "thanks.html";
+    },
+    onPending: function (result) {
+      console.log("⏳ Pembayaran pending:", result);
+      result.customer_name = nama;
+      localStorage.setItem('pending_data', JSON.stringify(result));
+      window.location.href = "pending.html";
+    },
+    onError: function (error) {
+      console.error("❌ Terjadi error saat pembayaran:", error);
+      alert("❌ Terjadi kesalahan saat proses pembayaran.");
+      window.location.href = "error.html";
+    },
+    onClose: function () {
+      console.warn("⚠️ Pengguna menutup popup pembayaran.");
+      alert("⚠️ Pembayaran dibatalkan.");
+    }
+  });
 
-      } catch (err) {
-        console.error("❌ Gagal menghubungi server:", err);
-        alert("Terjadi kesalahan teknis. Silakan coba lagi.");
-      }
+} catch (err) {
+  console.error("❌ Gagal menghubungi server:", err);
+  alert("Terjadi kesalahan teknis. Silakan coba lagi.");
+}
+
     });
   </script>
 </body>
