@@ -1,0 +1,16 @@
+{
+  "name": "midtrans-integration",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "midtrans-client": "^1.4.3",
+    "node-fetch": "2.6.11",
+    "nodemailer": "^7.0.3"
+  }
+}

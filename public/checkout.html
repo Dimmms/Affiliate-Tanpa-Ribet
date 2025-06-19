@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Paket Video Affiliate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fdfaf6;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    .checkout-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+    }
+    h1 {
+      color: #FF6F00;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    .price {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .old-price {
+      text-decoration: line-through;
+      color: #888;
+      margin-right: 10px;
+    }
+    .new-price {
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      background-color: #FF6F00;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 16px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background-color: #e65c00;
+      transform: scale(1.02);
+    }
+    .info {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+    .product-image {
+      max-width: 100%;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    @media (max-width: 480px) {
+      .checkout-container {
+        padding: 20px;
+        margin: 20px 10px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <h1>Checkout Sekarang</h1>
+    <p>Paket: <strong>1000+ Video Affiliate Siap Pakai</strong></p>
+    <p class="price">
+      <span class="old-price">Rp300.000</span>
+      <span class="new-price">Rp45.000</span>
+    </p>
+    <img alt="Produk Digital Affiliate" class="product-image" src="assets/Folder.png" />
+
+    <form id="payment-form">
+      <input type="text" id="nama" placeholder="Contoh: Andi Saputra" required />
+      <input type="email" id="email" placeholder="Contoh: emailkamu@gmail.com" required />
+      <input type="text" id="whatsapp" placeholder="Contoh: +6281234567890" required />
+      <button type="submit">Bayar Sekarang</button>
+    </form>
+
+    <p class="info">✅ Setelah pembayaran berhasil, kamu akan langsung mendapatkan akses ke Google Drive berisi materi digital.</p>
+  </div>
+
+ <script src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-3YZ4P07zEkU_y2Fk"></script>
+<script>
+  const form = document.getElementById('payment-form');
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidWhatsApp(number) {
+    return /^\+62[0-9]{8,12}$/.test(number);
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const nama = document.getElementById('nama').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const whatsapp = document.getElementById('whatsapp').value.trim();
+
+    if (!nama || !email || !whatsapp) {
+      alert('❗ Semua kolom wajib diisi.');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      alert('❗ Alamat email tidak valid. Mohon periksa kembali.');
+      return;
+    }
+
+    if (!isValidWhatsApp(whatsapp)) {
+      alert('❗ Nomor WhatsApp tidak valid. Gunakan format +62xxxxxxxxxxx.');
+      return;
+    }
+
+    try {
+      const sheetForm = new FormData();
+      sheetForm.append('NAMA', nama);
+      sheetForm.append('EMAIL', email);
+      sheetForm.append('WHATSAPP', whatsapp);
+
+      await fetch('https://script.google.com/macros/s/AKfycbylcFK0K8Ex1DEpeDKiIi9YWmgafrC9M7b0og04rVwLJBpLDbHvas713WqDdYIDqTkmCQ/exec', {
+        method: 'POST',
+        body: sheetForm
+      });
+    } catch (err) {
+      console.error('❌ Gagal kirim ke Google Sheets:', err);
+    }
+
+    try {
+      const orderId = "ORDER-" + new Date().getTime();
+      const amount = 45000;
+
+      const res = await fetch("https://affiliatetanparibet.com/create-transaction.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: orderId,
+          amount: amount
+        })
+      });
+
+      const data = await res.json();
+
+      if (!data.token) {
+        alert('❌ Gagal membuat transaksi.');
+        return;
+      }
+
+      window.snap.pay(data.token, {
+        onSuccess: function () {
+          alert("✅ Pembayaran berhasil!");
+          window.location.href = "thanks.html";
+        },
+        onPending: function (result) {
+          result.customer_name = nama;
+          localStorage.setItem('pending_data', JSON.stringify(result));
+          window.location.href = "pending.html";
+        },
+        onError: function () {
+          alert("❌ Terjadi kesalahan saat pembayaran.");
+          window.location.href = "error.html";
+        },
+        onClose: function () {
+          alert("⚠️ Kamu menutup pembayaran.");
+          window.location.href = "index.html";
+        }
+      });
+
+    } catch (err) {
+      console.error('❌ Gagal ambil token transaksi:', err);
+      alert("Terjadi kesalahan teknis.");
+    }
+  });
+</script>
+
+</body>
+</html>

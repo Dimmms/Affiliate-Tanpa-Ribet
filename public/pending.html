@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menunggu Pembayaran</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fffceb;
+      padding: 20px;
+      text-align: center;
+      color: #333;
+    }
+    .va-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 25px;
+      margin: 20px auto;
+      max-width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .va-number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+    .btn {
+      margin-top: 24px;
+      display: inline-block;
+      background-color: #FF6F00;
+      color: white;
+      padding: 12px 26px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .btn:hover {
+      background-color: #e65c00;
+      transform: scale(1.05);
+    }
+    img.qr-img {
+      border: 1px solid #eee;
+      padding: 10px;
+      background: #fff;
+      border-radius: 8px;
+      margin-top: 10px;
+      max-width: 180px;
+    }
+    @media (max-width: 480px) {
+      .va-box {
+        padding: 20px;
+        width: 90%;
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>⏳ Pembayaran Kamu Sedang Diproses</h2>
+
+  <div class="va-box" id="extra-info" style="margin-top: 30px;">
+    <p>Halo <strong id="cust-name">Customer</strong>,</p>
+    <p>Terima kasih telah melakukan pemesanan untuk produk <strong>1000+ Video Affiliate Siap Pakai</strong>.</p>
+    <h3 style="color:#FF6F00; margin-top: 20px;">🧾 Informasi Pembayaran Kamu</h3>
+    <div id="bank-info"></div>
+    <div id="qris-section"></div>
+    <p><strong>Total:</strong> Rp <span id="gross-amount-text"></span></p>
+    <p><strong>Batas Waktu Pembayaran:</strong> <span id="expiry-text"></span></p>
+    <p style="margin-top:15px; font-size:14px; color:#777;">📩 Masih bingung? Cek email kamu atau hubungi CS Kadar Digi untuk bantuan lebih lanjut.</p>
+  </div>
+
+  <a href="/index.html" class="btn" onclick="return confirm('Yakin ingin kembali ke halaman utama? Pembayaranmu belum selesai.')">Kembali ke Beranda</a>
+
+  <script>
+    const result = JSON.parse(localStorage.getItem('pending_data'));
+
+    if (result && result.payment_type === 'qris') {
+      const qrUrl = result.actions.find(a => a.name === 'get_qr_code')?.url;
+      document.getElementById('bank-info').innerHTML = `
+        <p><strong>Metode:</strong> QRIS</p>
+      `;
+      document.getElementById('qris-section').innerHTML = `
+        <p><strong>QR Code Pembayaran:</strong></p>
+        <img src="${qrUrl}" alt="QR Code Pembayaran" class="qr-img" />
+      `;
+    } else if (result && result.va_numbers && result.va_numbers.length > 0) {
+      const va = result.va_numbers[0];
+      document.getElementById('bank-info').innerHTML = `
+        <p><strong>Bank:</strong> ${va.bank.toUpperCase()}</p>
+        <p><strong>No. Rekening (VA):</strong> ${va.va_number}</p>
+      `;
+    } else {
+      document.getElementById('bank-info').innerHTML = "<p>Data pembayaran tidak tersedia.</p>";
+    }
+
+    if (result) {
+      document.getElementById('cust-name').innerText = result.customer_name || 'Customer';
+      document.getElementById('gross-amount-text').innerText = result.gross_amount;
+
+      function updateCountdown() {
+        const expiryTextEl = document.getElementById('expiry-text');
+        if (result.expiry_time) {
+          const expiry = new Date(result.expiry_time);
+          const now = new Date();
+          const diffMs = expiry - now;
+          if (diffMs > 0) {
+            const hours = Math.floor(diffMs / 1000 / 60 / 60);
+            const minutes = Math.floor((diffMs / 1000 / 60) % 60);
+            const seconds = Math.floor((diffMs / 1000) % 60);
+            expiryTextEl.innerText = `${hours} jam ${minutes} menit ${seconds} detik lagi`;
+          } else {
+            expiryTextEl.innerText = 'Waktu pembayaran telah habis';
+            clearInterval(timer);
+          }
+        } else {
+          expiryTextEl.innerText = '24 jam sejak pemesanan';
+        }
+      }
+
+      updateCountdown();
+      const timer = setInterval(updateCountdown, 1000);
+    }
+  </script>
+</body>
+</html>
