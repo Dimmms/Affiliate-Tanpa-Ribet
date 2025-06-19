@@ -1,0 +1,9 @@
+# Aktifkan mod_rewrite
+RewriteEngine On
+
+# Redirect ke HTTPS dan WWW (jika belum)
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Jadikan checkout.html sebagai halaman utama
+DirectoryIndex checkout.html
